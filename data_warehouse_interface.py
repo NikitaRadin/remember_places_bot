@@ -10,7 +10,7 @@ class DataWarehouseInterface:
 
     @staticmethod
     def _get_connection_parameters(include_database):
-        connection_parameters = constants.CONNECTION_PARAMETERS.copy()
+        connection_parameters = constants.DATABASE_SERVER_CONNECTION_PARAMETERS.copy()
         if include_database:
             connection_parameters['database'] = constants.DATABASE
         return connection_parameters

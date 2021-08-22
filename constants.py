@@ -1,10 +1,10 @@
 import os
 
 
-TOKEN = '1941449780:AAEw43miqSB_YEfOI_yRZi1aye8Lcz69KgY'
+TELEGRAM_BOT_API_TOKEN = ''
 
 
-CONNECTION_PARAMETERS = {
+DATABASE_SERVER_CONNECTION_PARAMETERS = {
   'host': '127.0.0.1',
   'port': '5432',
   'user': 'postgres',
@@ -19,7 +19,15 @@ NEUTRAL = 0
 NAME = 1
 LOCATION = 2
 PHOTO = 3
+DEPARTURE = 4
 
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PHOTOS = os.path.join(ROOT, 'photos')
+
+
+DGIS_MAPS_API_KEY = ''
+MAXIMUM_DISTANCE = 5000
+MAXIMUM_PLACES_ON_MAP_NUMBER = 99
+MAP_WIDTH = 1280
+MAP_HEIGHT = 1280
