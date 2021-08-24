@@ -35,5 +35,5 @@ class MapsInterface:
                                       f'{places_coordinates_[index][1]}~n:{index + 1}'
                                       for index in range(len(places_coordinates_)))
         return requests.get(url=f'https://static.maps.2gis.com/1.0?s={constants.MAP_WIDTH}x{constants.MAP_HEIGHT}&'
-                                f'pt={departure_coordinates[0]},{departure_coordinates[1]}~c:rd'
+                                f'pt={departure_coordinates[0]},{departure_coordinates[1]}~s:l~c:rd'
                                 f'{places_coordinates_}').content
