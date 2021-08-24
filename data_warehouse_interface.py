@@ -160,9 +160,12 @@ class DataWarehouseInterface:
         except IndexError:
             raise ValueError('A place with this place_id does not exist')
 
-    def delete_all_places(self, user_id):  # Implement photo deletion
+    def delete_all_places(self, user_id):
         if not self.does_user_exist(user_id=user_id):
             raise ValueError('A user with this user_id does not exist')
+        for place in self.get_all_places(user_id=user_id):
+            photo_path = os.path.join(constants.PHOTOS, f'{place[0]}.jpg')
+            os.remove(photo_path)
         self.cursor.execute(query=f'DELETE\n'
                                   f'FROM places\n'
                                   f'WHERE user_id = {user_id};')

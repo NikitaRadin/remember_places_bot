@@ -55,7 +55,7 @@ def add_location(message):
                                      data_warehouse_interface.get_step(user_id=message.chat.id) ==
                                      constants.PHOTO,
                                      content_types=['photo'])
-def add_photo(message):  # modify
+def add_photo(message):
     photo_path = remember_places_bot.get_file(file_id=message.photo[-1].file_id).file_path
     photo_content = requests.get(url=f'http://api.telegram.org/file/bot{constants.TELEGRAM_BOT_API_TOKEN}/'
                                      f'{photo_path}').content
@@ -83,7 +83,7 @@ def show_close_places(message):
                                                              destination_longitude=place[4],
                                                              destination_latitude=place[3])]
                   for place in data_warehouse_interface.get_all_places(user_id=message.chat.id)]
-    close_places = [place for place in all_places if place[6] <= constants.MAXIMUM_DISTANCE]
+    close_places = [place for place in all_places if 0 <= place[6] <= constants.MAXIMUM_DISTANCE]
     close_places.sort(key=lambda place: place[6])
     inline_keyboard_markup = InlineKeyboardMarkup(row_width=1)
     inline_keyboard_buttons = [InlineKeyboardButton(text=f'{index + 1}. {close_places[index][2]} '
