@@ -1,5 +1,5 @@
-import constants
 import psycopg2
+import constants
 import os
 
 
@@ -8,43 +8,31 @@ class DataWarehouseInterface:
         self.connection = None
         self.cursor = None
 
-    @staticmethod
-    def _get_connection_parameters(include_database):
-        connection_parameters = constants.DATABASE_SERVER_CONNECTION_PARAMETERS.copy()
-        if include_database:
-            connection_parameters['database'] = constants.DATABASE
-        return connection_parameters
-
     def connect_to_database(self):
         try:
-            self.connection = psycopg2.connect(**self._get_connection_parameters(include_database=True))
+            self.connection = psycopg2.connect(dsn=constants.DATABASE_CONNECTION_PARAMETERS)
             self.connection.autocommit = True
             self.cursor = self.connection.cursor()
         except psycopg2.OperationalError:
-            try:
-                connection = psycopg2.connect(**self._get_connection_parameters(include_database=False))
-                connection.autocommit = True
-                cursor = connection.cursor()
-                cursor.execute(query=f'CREATE DATABASE {constants.DATABASE};')
-                self.connection = psycopg2.connect(**self._get_connection_parameters(include_database=True))
-                self.connection.autocommit = True
-                self.cursor = self.connection.cursor()
-                self.cursor.execute(query='CREATE TABLE users\n'
-                                          '(\n'
-                                          '    user_id INT PRIMARY KEY,\n'
-                                          '    step    SMALLINT NOT NULL\n'
-                                          ');')
-                self.cursor.execute(query=f'CREATE TABLE places\n'
-                                          f'(\n'
-                                          f'    place_id   SERIAL PRIMARY KEY,\n'
-                                          f'    user_id    INT NOT NULL REFERENCES users(user_id),\n'
-                                          f'    name       VARCHAR({constants.MAXIMUM_NAME_LENGTH}) NULL,\n'
-                                          f'    latitude   FLOAT8 NULL,\n'
-                                          f'    longitude  FLOAT8 NULL,\n'
-                                          f'    photo_path VARCHAR({constants.MAXIMUM_PHOTO_PATH_LENGTH}) NULL\n'
-                                          f');')
-            except psycopg2.OperationalError:
-                raise ConnectionError('Connection to the database server could not be established')
+            raise ConnectionError('Connection to the database could not be established')
+
+    def reset_database(self):
+        self.cursor.execute(query='DROP TABLE IF EXISTS places;')
+        self.cursor.execute(query='DROP TABLE IF EXISTS users;')
+        self.cursor.execute(query='CREATE TABLE users\n'
+                                  '(\n'
+                                  '    user_id INT PRIMARY KEY,\n'
+                                  '    step    SMALLINT NOT NULL\n'
+                                  ');')
+        self.cursor.execute(query=f'CREATE TABLE places\n'
+                                  f'(\n'
+                                  f'    place_id   SERIAL PRIMARY KEY,\n'
+                                  f'    user_id    INT NOT NULL REFERENCES users(user_id),\n'
+                                  f'    name       VARCHAR({constants.MAXIMUM_NAME_LENGTH}) NULL,\n'
+                                  f'    latitude   FLOAT8 NULL,\n'
+                                  f'    longitude  FLOAT8 NULL,\n'
+                                  f'    photo_path VARCHAR({constants.MAXIMUM_PHOTO_PATH_LENGTH}) NULL\n'
+                                  f');')
 
     def does_user_exist(self, user_id):
         self.cursor.execute(query=f'SELECT\n'

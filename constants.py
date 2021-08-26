@@ -1,16 +1,10 @@
 import os
 
 
-TELEGRAM_BOT_API_TOKEN = ''
+TELEGRAM_BOT_API_TOKEN = os.environ['TELEGRAM_BOT_API_TOKEN']
 
 
-DATABASE_SERVER_CONNECTION_PARAMETERS = {
-  'host': '127.0.0.1',
-  'port': '5432',
-  'user': 'postgres',
-  'password': '299792458'
-}
-DATABASE = 'remember_places_bot'
+DATABASE_CONNECTION_PARAMETERS = os.environ['DATABASE_CONNECTION_PARAMETERS']
 MAXIMUM_NAME_LENGTH = 100
 MAXIMUM_PHOTO_PATH_LENGTH = 1000
 
@@ -26,7 +20,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 PHOTOS = os.path.join(ROOT, 'photos')
 
 
-DGIS_MAPS_API_KEY = ''
+DGIS_MAPS_API_KEY = os.environ['DGIS_MAPS_API_KEY']
 SUCCESS_STATUS_CODE = 200
 MAXIMUM_DISTANCE = 5000
 MAXIMUM_PLACES_ON_MAP_NUMBER = 99
