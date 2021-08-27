@@ -8,7 +8,6 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 remember_places_bot = TeleBot(token=constants.TELEGRAM_BOT_API_TOKEN)
 data_warehouse_interface = DataWarehouseInterface()
-data_warehouse_interface.connect_to_database()
 maps_interface = MapsInterface()
 
 
@@ -112,11 +111,10 @@ def show_close_places(message):
                                             callback_query.data.split()[0] ==
                                             'show_place')
 def show_place(callback_query):
-    place = data_warehouse_interface.get_place(place_id=int(callback_query.data.split()[1]))
+    place, photo_content = data_warehouse_interface.get_place(place_id=int(callback_query.data.split()[1]))
     remember_places_bot.send_message(chat_id=callback_query.message.chat.id, text=place[2])
     remember_places_bot.send_location(chat_id=callback_query.message.chat.id, latitude=place[3], longitude=place[4])
-    with open(file=place[5], mode='rb') as photo_file:
-        remember_places_bot.send_photo(chat_id=callback_query.message.chat.id, photo=photo_file.read())
+    remember_places_bot.send_photo(chat_id=callback_query.message.chat.id, photo=photo_content)
 
 
 @remember_places_bot.message_handler(commands=['delete_all_places'],

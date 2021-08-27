@@ -1,20 +1,22 @@
 import psycopg2
 import constants
-import os
+from dropbox import Dropbox
+import dropbox
 
 
 class DataWarehouseInterface:
     def __init__(self):
-        self.connection = None
-        self.cursor = None
-
-    def connect_to_database(self):
         try:
             self.connection = psycopg2.connect(dsn=constants.DATABASE_CONNECTION_PARAMETERS)
             self.connection.autocommit = True
             self.cursor = self.connection.cursor()
         except psycopg2.OperationalError:
             raise ConnectionError('Connection to the database could not be established')
+        try:
+            self.dropbox = Dropbox(oauth2_access_token=constants.DROPBOX_ACCESS_TOKEN)
+            self.dropbox.users_get_current_account()
+        except dropbox.exeptions.BadInputError:
+            raise ConnectionError('Connection to the Dropbox account could not be established')
 
     def reset_database(self):
         self.cursor.execute(query='DROP TABLE IF EXISTS places;')
@@ -111,9 +113,8 @@ class DataWarehouseInterface:
 
     def update_photo(self, user_id, photo_content):
         place_id = self._get_maximum_place_id(user_id=user_id)
-        photo_path = os.path.join(constants.PHOTOS, f'{place_id}.jpg')
-        with open(file=photo_path, mode='wb') as photo_file:
-            photo_file.write(photo_content)
+        photo_path = f'{constants.PHOTOS}/{place_id}.jpg'
+        self.dropbox.files_upload(f=photo_content, path=photo_path)
         self.cursor.execute(query=f'UPDATE places\n'
                                   f'SET\n'
                                   f'    photo_path = \'{photo_path}\'\n'
@@ -144,20 +145,22 @@ class DataWarehouseInterface:
                                   f'FROM places\n'
                                   f'WHERE place_id = {place_id};')
         try:
-            return self.cursor.fetchall().pop()
+            place = self.cursor.fetchall().pop()
+            _, response = self.dropbox.files_download(path=place[5])
         except IndexError:
             raise ValueError('A place with this place_id does not exist')
+        return place, response.content
 
     def delete_all_places(self, user_id):
         if not self.does_user_exist(user_id=user_id):
             raise ValueError('A user with this user_id does not exist')
         for place in self.get_all_places(user_id=user_id):
-            photo_path = os.path.join(constants.PHOTOS, f'{place[0]}.jpg')
-            os.remove(photo_path)
+            self.dropbox.files_delete_v2(path=place[5])
         self.cursor.execute(query=f'DELETE\n'
                                   f'FROM places\n'
                                   f'WHERE user_id = {user_id};')
 
-    def disconnect_from_database(self):
+    def disconnect_from_data_warehouse(self):
         self.cursor.close()
         self.connection.close()
+        self.dropbox.close()

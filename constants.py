@@ -16,8 +16,8 @@ PHOTO = 3
 DEPARTURE = 4
 
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
-PHOTOS = os.path.join(ROOT, 'photos')
+DROPBOX_ACCESS_TOKEN = os.environ['DROPBOX_ACCESS_TOKEN']
+PHOTOS = '/photos'
 
 
 DGIS_MAPS_API_KEY = os.environ['DGIS_MAPS_API_KEY']
